@@ -22,16 +22,20 @@ app.get("/api/hello", (req: Request, res: Response) => {
   res.json({ message: "This is a Json response" });
 });
 
-// test using postman
+const conversations = new Map<string, string>(); // storing in memory
+
 app.post("/api/chat", async (req: Request, res: Response) => {
-  const { prompt } = req.body;
+  const { prompt, conversationId } = req.body;
 
   const response = await openai.responses.create({
     model: "gpt-4.1-nano",
     input: prompt,
     temperature: 0.3,
     max_output_tokens: 200,
+    previous_response_id: conversations.get(conversationId),
   });
+
+  conversations.set(conversationId, response.id);
 
   res.json({ reply: response.output_text });
 });
