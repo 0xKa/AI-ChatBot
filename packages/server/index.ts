@@ -43,19 +43,23 @@ app.post("/api/chat", async (req: Request, res: Response) => {
     return;
   }
 
-  const { prompt, conversationId } = req.body;
+  try {
+    const { prompt, conversationId } = req.body;
 
-  const response = await openai.responses.create({
-    model: "gpt-4.1-nano",
-    input: prompt,
-    temperature: 0.3,
-    max_output_tokens: 200,
-    previous_response_id: conversations.get(conversationId),
-  });
+    const response = await openai.responses.create({
+      model: "gpt-4.1-nano",
+      input: prompt,
+      temperature: 0.3,
+      max_output_tokens: 200,
+      previous_response_id: conversations.get(conversationId),
+    });
 
-  conversations.set(conversationId, response.id);
+    conversations.set(conversationId, response.id);
 
-  res.json({ reply: response.output_text });
+    res.json({ reply: response.output_text });
+  } catch (error) {
+    res.status(500).json({ error: "A Server Error Occurred." });
+  }
 });
 
 app.listen(PORT, () => {
