@@ -1,15 +1,10 @@
 import express from "express";
 import type { Request, Response } from "express";
 import dotenv from "dotenv";
-import OpenAI from "openai";
 import z from "zod";
-import { conversationRepository } from "./repositories/conversation.repository";
+import { chatService } from "./services/chat.services";
 
 dotenv.config();
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
@@ -45,18 +40,8 @@ app.post("/api/chat", async (req: Request, res: Response) => {
   try {
     const { prompt, conversationId } = req.body;
 
-    const response = await openai.responses.create({
-      model: "gpt-4.1-nano",
-      input: prompt,
-      temperature: 0.3,
-      max_output_tokens: 200,
-      previous_response_id:
-        conversationRepository.getLastResponseId(conversationId),
-    });
-
-    conversationRepository.setLastResponseId(conversationId, response.id);
-
-    res.json({ reply: response.output_text });
+    const response = await chatService.sendMessage(prompt, conversationId);
+    res.json({ reply: response.outputText });
   } catch (error) {
     res.status(500).json({ error: "A Server Error Occurred." });
   }
