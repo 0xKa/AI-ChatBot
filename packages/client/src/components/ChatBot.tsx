@@ -58,11 +58,12 @@ const ChatBot = () => {
         {messages.map((message, index) => (
           <p
             key={index}
-            className={`px-4 py-2 mx-7 border border-gray-500 rounded-lg ${
-              message.by === "user"
-                ? "bg-blue-900 text-white self-start"
-                : "bg-slate-900 text-white self-end"
-            }`}
+            className={`max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word
+              ${
+                message.by === "user"
+                  ? "self-start bg-primary text-primary-foreground border-primary/40"
+                  : "self-end bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
+              }`}
           >
             {message.by === "user" ? "You: " : "Bot: "}
             {message.content}
