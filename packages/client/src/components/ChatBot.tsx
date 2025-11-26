@@ -1,21 +1,31 @@
+import axios from "axios";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { FaArrowUp } from "react-icons/fa";
+import { useRef } from "react";
 
 type FormData = {
   prompt: string;
 };
 
 const ChatBot = () => {
+  const conversationId = useRef(crypto.randomUUID());
+
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
     defaultValues: {
       prompt: "",
     },
   });
 
-  const OnSubmit = (data: FormData) => {
-    console.log(data);
+  const OnSubmit = async ({ prompt }: FormData) => {
     reset();
+    console.log(prompt);
+
+    const { data } = await axios.post("/api/chat", {
+      prompt,
+      conversationId: conversationId.current,
+    });
+    console.log(data);
   };
 
   const OnKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
