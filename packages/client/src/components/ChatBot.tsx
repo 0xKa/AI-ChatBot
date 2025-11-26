@@ -12,8 +12,13 @@ type AiResponse = {
   reply: string;
 };
 
+type Message = {
+  by: "user" | "bot";
+  content: string;
+};
+
 const ChatBot = () => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const conversationId = useRef(crypto.randomUUID());
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
     defaultValues: {
@@ -24,14 +29,20 @@ const ChatBot = () => {
   const OnSubmit = async ({ prompt }: FormData) => {
     reset();
     console.log(prompt);
-    setMessages((prevMessages) => [...prevMessages, prompt]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { by: "user", content: prompt },
+    ]);
 
     const { data } = await axios.post<AiResponse>("/api/chat", {
       prompt,
       conversationId: conversationId.current,
     });
     console.log(data.reply);
-    setMessages((prevMessages) => [...prevMessages, data.reply]);
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { by: "bot", content: data.reply },
+    ]);
   };
 
   const OnKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -43,14 +54,19 @@ const ChatBot = () => {
 
   return (
     <div>
-      <div>
+      <div className="flex flex-col gap-4 mb-10">
         {messages.map((message, index) => (
-          <div
+          <p
             key={index}
-            className="p-4 m-4 mx-9 border border-gray-500 rounded-md"
+            className={`px-4 py-2 mx-7 border border-gray-500 rounded-lg ${
+              message.by === "user"
+                ? "bg-blue-900 text-white self-start"
+                : "bg-slate-900 text-white self-end"
+            }`}
           >
-            {message}
-          </div>
+            {message.by === "user" ? "You: " : "Bot: "}
+            {message.content}
+          </p>
         ))}
       </div>
       <form
