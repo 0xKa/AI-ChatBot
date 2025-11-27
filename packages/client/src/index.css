@@ -1,5 +1,29 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@layer components {
+  .markdown table {
+    @apply w-full border-collapse my-4;
+  }
+
+  .markdown th,
+  .markdown td {
+    @apply border border-border p-2;
+  }
+
+  .markdown th {
+    @apply bg-gray-300 font-semibold;
+  }
+
+  /* Dark mode */
+  .dark .markdown th,
+  .dark .markdown td {
+    @apply border border-border;
+  }
+
+  .dark .markdown th {
+    @apply bg-black/20;
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 

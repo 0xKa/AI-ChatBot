@@ -1,4 +1,6 @@
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { FaArrowUp } from "react-icons/fa";
@@ -56,18 +58,22 @@ const ChatBot = () => {
     <div>
       <div className="flex flex-col gap-4 mb-10">
         {messages.map((message, index) => (
-          <p
+          <div
             key={index}
             className={`max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word
-              ${
-                message.by === "user"
-                  ? "self-start bg-primary text-primary-foreground border-primary/40"
-                  : "self-end bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
-              }`}
+        ${
+          message.by === "user"
+            ? "self-start bg-primary text-primary-foreground border-primary/40"
+            : "self-end bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
+        }`}
           >
             {message.by === "user" ? "You: " : "Bot: "}
-            {message.content}
-          </p>
+            <div className="markdown">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          </div>
         ))}
       </div>
       <form
