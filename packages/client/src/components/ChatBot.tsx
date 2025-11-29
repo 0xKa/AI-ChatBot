@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { FaArrowUp } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
+import TypingIndicator from "./chat/TypingIndicator";
 
 type FormData = {
   prompt: string;
@@ -99,17 +100,7 @@ const ChatBot = () => {
             </div>
           </div>
         ))}
-        {isBotTyping && (
-          <div className="max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word self-start bg-muted text-foreground border-border dark:bg-accent/30 dark:border-accent/40">
-            <div className="flex items-center gap-3">
-              <div className="flex gap-1" aria-label="Loading">
-                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:0ms]"></span>
-                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:150ms]"></span>
-                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:300ms]"></span>
-              </div>
-            </div>
-          </div>
-        )}
+        {isBotTyping && <TypingIndicator />}
 
         {error && (
           <div className="max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word self-start bg-red-100 text-red-800 border-red-300">
