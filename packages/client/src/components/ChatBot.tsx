@@ -62,6 +62,14 @@ const ChatBot = () => {
     }
   };
 
+  const CopyCleanMessage = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const selection = window.getSelection()?.toString().trim();
+    if (selection) {
+      e.preventDefault();
+      e.clipboardData.setData("text/plain", selection);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-4 mb-10">
@@ -75,7 +83,7 @@ const ChatBot = () => {
             : "self-start bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
         }`}
           >
-            <div className="markdown">
+            <div className="markdown" onCopy={CopyCleanMessage}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
               </ReactMarkdown>
