@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { FaArrowUp } from "react-icons/fa6";
+import { useRef } from "react";
 
 export type ChatFormData = {
   prompt: string;
@@ -12,7 +13,13 @@ type Props = {
 };
 
 const ChatInput = ({ OnSubmit, isBotTyping }: Props) => {
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { register, handleSubmit, reset, formState } = useForm<ChatFormData>();
+
+  const { ref: rhfRef, ...promptReg } = register("prompt", {
+    required: true,
+    validate: (value) => value.trim().length > 0,
+  });
 
   const submitInput = handleSubmit((data) => {
     reset({ prompt: "" });
@@ -25,17 +32,20 @@ const ChatInput = ({ OnSubmit, isBotTyping }: Props) => {
       if (!isBotTyping) submitInput();
     }
   };
+
   return (
     <form
       onSubmit={submitInput}
       onKeyDown={handleKeyDown}
-      className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2 "
+      onClick={() => textAreaRef.current?.focus()}
+      className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2"
     >
       <textarea
-        {...register("prompt", {
-          required: true,
-          validate: (value) => value.trim().length > 0,
-        })}
+        {...promptReg}
+        ref={(el) => {
+          rhfRef(el); // give ref to RHF
+          textAreaRef.current = el; // keep custom ref for focus
+        }}
         maxLength={200}
         autoFocus
         placeholder="Ask Anything..."
