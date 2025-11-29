@@ -71,8 +71,8 @@ const ChatBot = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 mb-10">
+    <div className="flex flex-col h-full mx-5">
+      <div className="chat-scroll flex flex-col gap-4 flex-1 overflow-y-auto mb-1 p-3 rounded-lg">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -106,7 +106,7 @@ const ChatBot = () => {
         onSubmit={handleSubmit(OnSubmit)}
         onKeyDown={OnKeyDown}
         ref={formRef}
-        className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2 m-5"
+        className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2 "
       >
         <textarea
           {...register("prompt", {
