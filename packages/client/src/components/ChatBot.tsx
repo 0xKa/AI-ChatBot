@@ -22,6 +22,7 @@ type Message = {
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const [error, setError] = useState<string>("");
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const conversationId = useRef(crypto.randomUUID());
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
@@ -35,24 +36,31 @@ const ChatBot = () => {
   }, [messages]);
 
   const OnSubmit = async ({ prompt }: FormData) => {
-    reset({ prompt: "" });
-    console.log(prompt);
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { by: "user", content: prompt },
-    ]);
-    setIsBotTyping(true);
+    try {
+      reset({ prompt: "" });
+      console.log(prompt);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { by: "user", content: prompt },
+      ]);
+      setIsBotTyping(true);
+      setError("");
 
-    const { data } = await axios.post<AiResponse>("/api/chat", {
-      prompt,
-      conversationId: conversationId.current,
-    });
-    console.log(data.reply);
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { by: "bot", content: data.reply },
-    ]);
-    setIsBotTyping(false);
+      const { data } = await axios.post<AiResponse>("/api/chat", {
+        prompt,
+        conversationId: conversationId.current,
+      });
+      console.log(data.reply);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { by: "bot", content: data.reply },
+      ]);
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsBotTyping(false);
+    }
   };
 
   const OnKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
@@ -100,6 +108,12 @@ const ChatBot = () => {
                 <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:300ms]"></span>
               </div>
             </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word self-start bg-red-100 text-red-800 border-red-300">
+            {error}
           </div>
         )}
       </div>
