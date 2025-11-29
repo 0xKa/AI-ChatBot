@@ -21,6 +21,7 @@ type Message = {
 
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const conversationId = useRef(crypto.randomUUID());
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
     defaultValues: {
@@ -35,6 +36,7 @@ const ChatBot = () => {
       ...prevMessages,
       { by: "user", content: prompt },
     ]);
+    setIsBotTyping(true);
 
     const { data } = await axios.post<AiResponse>("/api/chat", {
       prompt,
@@ -45,12 +47,13 @@ const ChatBot = () => {
       ...prevMessages,
       { by: "bot", content: data.reply },
     ]);
+    setIsBotTyping(false);
   };
 
   const OnKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(OnSubmit)();
+      if (!isBotTyping) handleSubmit(OnSubmit)();
     }
   };
 
@@ -63,11 +66,10 @@ const ChatBot = () => {
             className={`max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word
         ${
           message.by === "user"
-            ? "self-start bg-primary text-primary-foreground border-primary/40"
-            : "self-end bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
+            ? "self-end bg-primary text-primary-foreground border-primary/40"
+            : "self-start bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
         }`}
           >
-            {message.by === "user" ? "You: " : "Bot: "}
             <div className="markdown">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {message.content}
@@ -75,6 +77,17 @@ const ChatBot = () => {
             </div>
           </div>
         ))}
+        {isBotTyping && (
+          <div className="max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word self-start bg-muted text-foreground border-border dark:bg-accent/30 dark:border-accent/40">
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1" aria-label="Loading">
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:0ms]"></span>
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:150ms]"></span>
+                <span className="h-2 w-2 rounded-full bg-primary animate-bounce [animation-delay:300ms]"></span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <form
         onSubmit={handleSubmit(OnSubmit)}
@@ -91,7 +104,7 @@ const ChatBot = () => {
           maxLength={200}
         ></textarea>
         <Button
-          disabled={formState.isSubmitting || !formState.isValid}
+          disabled={formState.isSubmitting || !formState.isValid || isBotTyping}
           className="rounded-full w-10 h-10 hover:bg-gray-500"
         >
           <FaArrowUp />
