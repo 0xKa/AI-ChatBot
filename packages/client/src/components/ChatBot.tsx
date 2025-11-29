@@ -1,15 +1,9 @@
 import axios from "axios";
-import { useForm } from "react-hook-form";
-import { Button } from "./ui/button";
-import { FaArrowUp } from "react-icons/fa";
 import { useRef, useState } from "react";
 import TypingIndicator from "./chat/TypingIndicator";
 import ChatMessages, { type Message } from "./chat/ChatMessages";
 import ErrorMessage from "./chat/ErrorMessage";
-
-type FormData = {
-  prompt: string;
-};
+import ChatInput, { type ChatFormData } from "./chat/ChatInput";
 
 type AiResponse = {
   reply: string;
@@ -20,15 +14,9 @@ const ChatBot = () => {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [error, setError] = useState<string>("");
   const conversationId = useRef(crypto.randomUUID());
-  const { register, handleSubmit, reset, formState } = useForm<FormData>({
-    defaultValues: {
-      prompt: "",
-    },
-  });
 
-  const OnSubmit = async ({ prompt }: FormData) => {
+  const OnSubmit = async ({ prompt }: ChatFormData) => {
     try {
-      reset({ prompt: "" });
       console.log(prompt);
       setMessages((prevMessages) => [
         ...prevMessages,
@@ -54,13 +42,6 @@ const ChatBot = () => {
     }
   };
 
-  const OnKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (!isBotTyping) handleSubmit(OnSubmit)();
-    }
-  };
-
   return (
     <div className="flex flex-col h-full mx-5">
       <div className="flex flex-col gap-4 flex-1 chat-scroll overflow-y-auto mb-2 rounded-lg lg:px-[10%] ">
@@ -69,28 +50,7 @@ const ChatBot = () => {
         {isBotTyping && <TypingIndicator />}
         {error && <ErrorMessage message={error} />}
       </div>
-      <form
-        onSubmit={handleSubmit(OnSubmit)}
-        onKeyDown={OnKeyDown}
-        className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2 "
-      >
-        <textarea
-          {...register("prompt", {
-            required: true,
-            validate: (value) => value.trim().length > 0,
-          })}
-          maxLength={200}
-          autoFocus
-          placeholder="Ask Anything..."
-          className="w-full resize-none p-3 border-0 focus:outline-0 rounded-md "
-        ></textarea>
-        <Button
-          disabled={formState.isSubmitting || !formState.isValid || isBotTyping}
-          className="rounded-full w-10 h-10 hover:bg-gray-500"
-        >
-          <FaArrowUp />
-        </Button>
-      </form>
+      <ChatInput OnSubmit={OnSubmit} isBotTyping={isBotTyping} />
     </div>
   );
 };
