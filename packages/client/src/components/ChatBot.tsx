@@ -5,6 +5,7 @@ import { FaArrowUp } from "react-icons/fa";
 import { useRef, useState } from "react";
 import TypingIndicator from "./chat/TypingIndicator";
 import ChatMessages, { type Message } from "./chat/ChatMessages";
+import ErrorMessage from "./chat/ErrorMessage";
 
 type FormData = {
   prompt: string;
@@ -62,16 +63,11 @@ const ChatBot = () => {
 
   return (
     <div className="flex flex-col h-full mx-5">
-      <div className="chat-scroll overflow-y-auto mb-2 rounded-lg lg:px-[10%]">
+      <div className="flex flex-col gap-4 flex-1 chat-scroll overflow-y-auto mb-2 rounded-lg lg:px-[10%] ">
         <ChatMessages messages={messages} />
 
         {isBotTyping && <TypingIndicator />}
-
-        {error && (
-          <div className="max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word self-start bg-red-100 text-red-800 border-red-300">
-            {error}
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
       </div>
       <form
         onSubmit={handleSubmit(OnSubmit)}
