@@ -22,7 +22,7 @@ type Message = {
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
   const conversationId = useRef(crypto.randomUUID());
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
     defaultValues: {
@@ -31,11 +31,11 @@ const ChatBot = () => {
   });
 
   useEffect(() => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const OnSubmit = async ({ prompt }: FormData) => {
-    reset();
+    reset({ prompt: "" });
     console.log(prompt);
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -76,6 +76,7 @@ const ChatBot = () => {
         {messages.map((message, index) => (
           <div
             key={index}
+            ref={index === messages.length - 1 ? lastMessageRef : null}
             className={`max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word
         ${
           message.by === "user"
@@ -105,7 +106,6 @@ const ChatBot = () => {
       <form
         onSubmit={handleSubmit(OnSubmit)}
         onKeyDown={OnKeyDown}
-        ref={formRef}
         className="flex flex-col gap-2 items-end border-2 rounded-3xl p-2 "
       >
         <textarea
@@ -113,9 +113,10 @@ const ChatBot = () => {
             required: true,
             validate: (value) => value.trim().length > 0,
           })}
+          maxLength={200}
+          autoFocus
           placeholder="Ask Anything..."
           className="w-full resize-none p-3 border-0 focus:outline-0 rounded-md "
-          maxLength={200}
         ></textarea>
         <Button
           disabled={formState.isSubmitting || !formState.isValid || isBotTyping}
