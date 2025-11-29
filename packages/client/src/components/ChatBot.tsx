@@ -1,11 +1,10 @@
 import axios from "axios";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { FaArrowUp } from "react-icons/fa";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import TypingIndicator from "./chat/TypingIndicator";
+import ChatMessages, { type Message } from "./chat/ChatMessages";
 
 type FormData = {
   prompt: string;
@@ -15,26 +14,16 @@ type AiResponse = {
   reply: string;
 };
 
-type Message = {
-  by: "user" | "bot";
-  content: string;
-};
-
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [error, setError] = useState<string>("");
-  const lastMessageRef = useRef<HTMLDivElement>(null);
   const conversationId = useRef(crypto.randomUUID());
   const { register, handleSubmit, reset, formState } = useForm<FormData>({
     defaultValues: {
       prompt: "",
     },
   });
-
-  useEffect(() => {
-    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   const OnSubmit = async ({ prompt }: FormData) => {
     try {
@@ -71,35 +60,11 @@ const ChatBot = () => {
     }
   };
 
-  const CopyCleanMessage = (e: React.ClipboardEvent<HTMLDivElement>) => {
-    const selection = window.getSelection()?.toString().trim();
-    if (selection) {
-      e.preventDefault();
-      e.clipboardData.setData("text/plain", selection);
-    }
-  };
-
   return (
     <div className="flex flex-col h-full mx-5">
-      <div className="chat-scroll flex flex-col gap-4 flex-1 overflow-y-auto mb-1 p-3 rounded-lg">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            ref={index === messages.length - 1 ? lastMessageRef : null}
-            className={`max-w-[85%] px-4 py-2 mx-7 rounded-lg border wrap-break-word
-        ${
-          message.by === "user"
-            ? "self-end bg-primary text-primary-foreground border-primary/40"
-            : "self-start bg-muted text-foreground border-border dark:bg-accent dark:border-accent/40"
-        }`}
-          >
-            <div className="markdown" onCopy={CopyCleanMessage}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
-            </div>
-          </div>
-        ))}
+      <div className="chat-scroll overflow-y-auto mb-2 rounded-lg lg:px-[10%]">
+        <ChatMessages messages={messages} />
+
         {isBotTyping && <TypingIndicator />}
 
         {error && (
