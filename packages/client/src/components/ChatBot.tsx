@@ -5,7 +5,8 @@ import ChatInput from "./chat/ChatInput";
 import useChatSession from "@/hooks/useChatSession";
 
 const ChatBot = () => {
-  const { messages, isBotTyping, error, submitChatMessage } = useChatSession();
+  const { messages, isBotTyping, error, submitChatMessage, clearMessages } =
+    useChatSession();
 
   return (
     <div className="flex flex-col h-full mx-5">
@@ -14,7 +15,11 @@ const ChatBot = () => {
         {isBotTyping && <TypingIndicator />}
         {error && <ErrorMessage message={error} />}
       </div>
-      <ChatInput OnSubmit={submitChatMessage} isBotTyping={isBotTyping} />
+      <ChatInput
+        OnSubmit={submitChatMessage}
+        OnClear={clearMessages}
+        isBotTyping={isBotTyping}
+      />
     </div>
   );
 };

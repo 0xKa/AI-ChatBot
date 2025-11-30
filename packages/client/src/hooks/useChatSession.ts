@@ -27,12 +27,12 @@ const useChatSession = () => {
     [sendPrompt]
   );
 
-  const reset = useCallback(() => {
+  const clearMessages = useCallback(() => {
     setMessages([]);
     setError("");
   }, []);
 
-  return { messages, isBotTyping, error, submitChatMessage, reset };
+  return { messages, isBotTyping, error, submitChatMessage, clearMessages };
 };
 
 export default useChatSession;
