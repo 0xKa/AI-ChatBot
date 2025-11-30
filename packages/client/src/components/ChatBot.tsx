@@ -1,35 +1,27 @@
-import axios from "axios";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import TypingIndicator from "./chat/TypingIndicator";
 import ChatMessages, { type Message } from "./chat/ChatMessages";
 import ErrorMessage from "./chat/ErrorMessage";
 import ChatInput, { type ChatFormData } from "./chat/ChatInput";
-
-type AiResponse = {
-  reply: string;
-};
+import useChat from "@/hooks/useChat";
 
 const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [error, setError] = useState<string>("");
-  const conversationId = useRef(crypto.randomUUID());
+  const { sendPrompt } = useChat();
 
   const OnSubmit = async ({ prompt }: ChatFormData) => {
-    try {
-      console.log(prompt);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { by: "user", content: prompt },
-      ]);
-      setIsBotTyping(true);
-      setError("");
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { by: "user", content: prompt },
+    ]);
+    setIsBotTyping(true);
+    setError("");
 
-      const { data } = await axios.post<AiResponse>("/api/chat", {
-        prompt,
-        conversationId: conversationId.current,
-      });
-      console.log(data.reply);
+    try {
+      const { data } = await sendPrompt(prompt);
+
       setMessages((prevMessages) => [
         ...prevMessages,
         { by: "bot", content: data.reply },
